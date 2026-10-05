@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>AgroGuide | Crop Recommendation</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+    {% if error %}
+    <div class="toast error-toast">
+        <div class="toast-content">
+            <span class="toast-icon">⚠️</span>
+
+            <div class="toast-text">
+                <strong>Invalid Input</strong>
+                <span>{{ error }}</span>
+            </div>
+        </div>
+
+        <button class="toast-close" onclick="this.parentElement.remove()">×</button>
+    </div>
+    {% endif %}
+
+<header class="navbar">
+    <div class="logo">
+        🌱 AgroGuide
+    </div>
+
+    <div class="nav-text">
+        ML-Powered Crop Recommendation
+    </div>
+</header>
+
+
+<main class="container">
+
+    <section class="hero">
+        <div>
+            <span class="badge">MACHINE LEARNING</span>
+
+            <h1>Find the right crop<br>for your conditions.</h1>
+
+            <p>
+                Enter your soil and environmental parameters and let the
+                machine learning model recommend the most suitable crops.
+            </p>
+        </div>
+
+        <div class="hero-icon">
+            🌾
+        </div>
+    </section>
+
+
+    <section class="content-grid">
+
+        <div class="card input-card">
+
+            <div class="card-heading">
+                <div>
+                    <h2>Crop Conditions</h2>
+                    <p>Enter the values for your field.</p>
+                </div>
+            </div>
+
+
+            <form method="POST">
+
+                <h3>🌱 Soil Parameters</h3>
+
+                <div class="input-grid">
+
+                    <div class="input-group">
+                        <label>Nitrogen</label>
+                        <div class="input-wrapper">
+                            <input type="number" step="any" name="N" placeholder="e.g. 90" required>
+                            <span>N</span>
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <label>Phosphorus</label>
+                        <div class="input-wrapper">
+                            <input type="number" step="any" name="P" placeholder="e.g. 42" required>
+                            <span>P</span>
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <label>Potassium</label>
+                        <div class="input-wrapper">
+                            <input type="number" step="any" name="K" placeholder="e.g. 43" required>
+                            <span>K</span>
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <label>Soil pH</label>
+                        <div class="input-wrapper">
+                            <input type="number" step="any" name="ph" placeholder="e.g. 6.5" required>
+                            <span>pH</span>
+                        </div>
+                    </div>
+
+                </div>
+
+
+                <h3>☀️ Environmental Conditions</h3>
+
+                <div class="input-grid">
+
+                    <div class="input-group">
+                        <label>Temperature</label>
+                        <div class="input-wrapper">
+                            <input type="number" step="any" name="temperature" placeholder="e.g. 20.8" required>
+                            <span>°C</span>
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <label>Humidity</label>
+                        <div class="input-wrapper">
+                            <input type="number" step="any" name="humidity" placeholder="e.g. 82" required>
+                            <span>%</span>
+                        </div>
+                    </div>
+
+                    <div class="input-group full-width">
+                        <label>Rainfall</label>
+                        <div class="input-wrapper">
+                            <input type="number" step="any" name="rainfall" placeholder="e.g. 202" required>
+                            <span>mm</span>
+                        </div>
+                    </div>
+
+                </div>
+
+
+                <button type="submit">
+                    Analyze Conditions
+                    <span>→</span>
+                </button>
+
+            </form>
+
+        </div>
+
+
+        <div class="card result-card">
+
+            {% if prediction is not none %}
+
+                <div class="result-header">
+                    <span class="result-badge">RECOMMENDATION</span>
+                    <span class="check">✓</span>
+                </div>
+
+                <p class="result-label">Most suitable crop</p>
+
+                <h2 class="crop-name">
+                    🌾 {{ prediction|capitalize }}
+                </h2>
+
+                {% if recommendations %}
+
+                    <div class="confidence">
+                        <div class="confidence-top">
+                            <span>Model confidence</span>
+                            <strong>{{ recommendations[0]['probability'] }}%</strong>
+                        </div>
+
+                        <div class="progress">
+                            <div class="progress-bar" style="--progress: {{ recommendations[0].probability }}%;"></div>
+                        </div>
+                    </div>
+
+
+                    <div class="alternatives">
+
+                        <h3>Top recommendations</h3>
+
+                        {% for item in recommendations %}
+
+                            <div class="recommendation">
+
+                                <div class="crop-info">
+                                    <span class="rank">{{ loop.index }}</span>
+                                    <span>{{ item.crop|capitalize }}</span>
+                                </div>
+
+                                <strong>{{ item.probability }}%</strong>
+
+                            </div>
+
+                        {% endfor %}
+
+                    </div>
+
+                {% endif %}
+
+                <div class="result-note">
+                    💡 These recommendations are generated by a
+                    Random Forest classification model trained on soil
+                    and environmental parameters.
+                </div>
+
+            {% else %}
+
+                <div class="empty-result">
+
+                    <div class="empty-icon">🌱</div>
+
+                    <h2>Your recommendation<br>will appear here.</h2>
+
+                    <p>
+                        Enter your field conditions on the left to
+                        generate an ML-powered crop recommendation.
+                    </p>
+
+                </div>
+
+            {% endif %}
+
+        </div>
+
+    </section>
+
+
+    <section class="stats">
+
+        <div class="stat">
+            <span class="stat-icon">🎯</span>
+            <div>
+                <strong>99.55%</strong>
+                <span>Test Accuracy</span>
+            </div>
+        </div>
+
+        <div class="stat">
+            <span class="stat-icon">🌱</span>
+            <div>
+                <strong>7</strong>
+                <span>Input Features</span>
+            </div>
+        </div>
+
+        <div class="stat">
+            <span class="stat-icon">🤖</span>
+            <div>
+                <strong>Random Forest</strong>
+                <span>Selected Model</span>
+            </div>
+        </div>
+
+        <div class="stat">
+            <span class="stat-icon">📊</span>
+            <div>
+                <strong>Top 3</strong>
+                <span>Recommendations</span>
+            </div>
+        </div>
+
+    </section>
+
+
+    <footer>
+        <p>AgroGuide • Machine Learning Crop Recommendation System</p>
+    </footer>
+
+</main>
+<script>
+    const toast = document.querySelector(".toast");
+
+    if (toast) {
+        setTimeout(() => {
+            toast.remove();
+        }, 4000);
+    }
+</script>
+
+</body>
+</html>
